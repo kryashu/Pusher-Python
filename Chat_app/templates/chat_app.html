@@ -1,0 +1,62 @@
+<html>
+    <head>
+        <title>Welcome User</title>
+        <link rel="shortcut icon" href="#" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="https://js.pusher.com/5.1/pusher.min.js"></script>
+    <script>
+        $(document).ready(function(){
+        $('#chat_box').hide(); 
+        var username = "";
+        $('#add_user').click(function(){
+            username = $('#username').val();
+            $('#reg_box').hide();
+            $('#chat_box').show();
+        });
+        $('#send_msg').click(function(){
+            var message = $('#message').val();
+            $.post('/message',{'username':username,'message':message},function(result){
+                if (result.result=='success'){
+                    $('#message').val("");
+                }
+                if (result.result=='failed')
+                {
+                    alert('Failed in sending message')
+                    return (false)
+                }
+            });
+        });
+            Pusher.logToConsole = true;
+        
+            var pusher = new Pusher('d417f479a3ef2af3f3a6', {
+              cluster: 'ap2',
+              forceTLS: true
+            });
+        
+            var channel = pusher.subscribe('my-channel');
+            channel.bind('send-message', function(data) {
+              //alert(JSON.stringify(data));
+              $('#chat_hist').append('<p>'+data.username+':-'+data.message+'</p>')
+            });
+
+        
+        });
+    </script>
+    </head>
+    <body>
+    <div id = "reg_box" class="form-group" style="margin-left:300px ;">
+        <h1>Register Your ID</h1><br>
+        <lable for="username" style="margin-left: 100px;" >Username:</lable><br>
+        <input type="text" id="username" style="margin-left:50px"><br><br>
+        <button id = "add_user" class="btn btn-primary" style="margin-left:80px">Start Chatting</button>
+    </div>
+<div id="chat_box" style="margin-left: 300px;">
+    <div id="chat_hist">
+        <h1>Chat history</h1>
+    </div>
+    <input type='text' id='message'><button id = 'send_msg' class="btn">Send</button>
+</div>
+</body>
+</html>
